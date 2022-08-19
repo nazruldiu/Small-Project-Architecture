@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Architecture.DataService\Architecture.DataService.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>
