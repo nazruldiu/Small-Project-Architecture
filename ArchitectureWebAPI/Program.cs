@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Default");
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 
 builder.Services.AddControllers();
@@ -19,5 +20,5 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
-app.UseStaticFiles();
+
 app.Run();

@@ -1,5 +1,6 @@
 ﻿using Architecture.DataService.IConfiguration;
 using Architecture.Entities.DbEntities;
+using ArchitectureWebAPI.Utilites;
 using ArchitectureWebAPI.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +12,10 @@ namespace ArchitectureWebAPI.Controllers
     public class AppUserController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         
-        public AppUserController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        public AppUserController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
@@ -26,13 +25,21 @@ namespace ArchitectureWebAPI.Controllers
             return Ok(userList);
         }
 
+        [HttpGet]
+        [Route("GetUserById")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var userList = await _unitOfWork.appUser.GetById(id);
+            return Ok(userList);
+        }
+
         [HttpPost]
         [Route("Registration")]
         public async Task<IActionResult> UserRegistration([FromForm] AppUserViewModel appUser)
         {
             if(appUser.File != null)
             {
-                appUser.FileUrl = UploadedFile(appUser.File);
+                appUser.FileUrl = FileUploadHelper.UploadedFile(appUser.File);
             }
             var appUserEntity = new AppUser
             {
@@ -53,8 +60,8 @@ namespace ArchitectureWebAPI.Controllers
         {
             if (appUser.File != null)
             {
-                DeleteFile(appUser.FileUrl);
-                appUser.FileUrl = UploadedFile(appUser.File);
+                FileUploadHelper.DeleteFile(appUser.FileUrl);
+                appUser.FileUrl = FileUploadHelper.UploadedFile(appUser.File);
             }
             var appUserEntity = new AppUser
             {
@@ -71,40 +78,13 @@ namespace ArchitectureWebAPI.Controllers
             await _unitOfWork.SaveAsync();
             return Ok();
         }
+
         [HttpDelete]
         public async Task<IActionResult> DeleteUser(int id)
         {
             await _unitOfWork.appUser.Delete(id);
             await _unitOfWork.SaveAsync();
             return Ok();
-        }
-
-        private string UploadedFile(IFormFile formFile)
-        {
-            string uniqueFileName = String.Empty;
-
-            if (formFile != null)
-            {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + formFile.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                using var fileStream = new FileStream(filePath, FileMode.Create);
-                formFile.CopyTo(fileStream);
-            }
-            return uniqueFileName;
-        }
-
-        private void DeleteFile(string? fileUrl)
-        {
-            if (fileUrl != null)
-            {
-                string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", fileUrl);
-                System.IO.File.Delete(filePath);
-            }
         }
     }
 }
