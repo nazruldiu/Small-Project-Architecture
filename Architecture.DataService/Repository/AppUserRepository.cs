@@ -14,5 +14,11 @@ namespace Architecture.DataService.Repository
         public AppUserRepository(AppDbContext dbContext): base(dbContext)
         {
         }
+
+        public AppUser GetUser(string Username, string Password)
+        {
+            var user = _dbSet.FirstOrDefault(x => x.Username == Username && x.Password == Password);
+            return user;
+        }
     }
 }

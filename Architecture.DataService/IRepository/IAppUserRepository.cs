@@ -9,5 +9,6 @@ namespace Architecture.DataService.IRepository
 {
     public interface IAppUserRepository: IGenericRepository<AppUser>
     {
+        AppUser GetUser(string Username, string Password);
     }
 }

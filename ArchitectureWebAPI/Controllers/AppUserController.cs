@@ -3,6 +3,7 @@ using Architecture.Entities.DbEntities;
 using ArchitectureWebAPI.DTO;
 using ArchitectureWebAPI.Utilites;
 using ArchitectureWebAPI.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace ArchitectureWebAPI.Controllers
             return Ok(new ResponseDto<List<AppUser>>(userList.ToList(), true, "Success", null));
         }
 
+        [Authorize]
         [HttpGet]
         [Route("GetUsers")]
         public async Task<IActionResult> GetUsers(int show)
